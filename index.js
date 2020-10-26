@@ -26,8 +26,8 @@ app.get('/projects/:slug', projects.getBySlug); // Add a single project
 app.post('/projects', projects.postController);// Add a new project
 
 
-app.get('/issues/:issueNumber/comments', comments.getAllController); //get All comments for an issue
-app.get('/issues/comments/:commentId', comments.getSingleComment) //get a single Comment By Id
+app.get('/issues/:issueNumber/comments', comments.getAll); //get All comments for an issue
+app.get('/issues/comments/:commentId', comments.getComment) //get a single Comment By Id
 app.post('/issues/:issueNumber/comments', comments.addComment); //Add a single comment for an issue
 
 

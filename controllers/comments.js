@@ -1,10 +1,10 @@
 const comments = require('../models/comments')();
 
 module.exports = () => {
-  const getAllIssue = async (req, res) => {
+  const getAll = async (req, res) => {
     res.json(await comments.getAllCommentsIssue(req.params.issueNumber));
   };
-  const getSingleComment = async(req, res) => {
+  const getComment = async(req, res) => {
     res.json(await comments.getAComment(req.params.commentId))
   }
   const addComment = async (req, res) => {
@@ -22,9 +22,9 @@ module.exports = () => {
     res.json(result);
   }
   return {
-    getAllController,
+    getAll,
     addComment,
-    getSingleComment,
+    getComment,
     updateStatus
   };
 };
