@@ -71,7 +71,6 @@ module.exports = () => {
     const PIPELINE = { issueNumber: issueNumber };
     const CONDITION = { $set: { status: status } };
     const results = await db.update(COLLECTION, PIPELINE, CONDITION);
-
     return results.result;
   };
 

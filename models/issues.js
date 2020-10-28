@@ -9,7 +9,7 @@ module.exports = () => {
       const allIssues = await db.get(COLLECTION);
       if (allIssues.length == 0) {
         return {
-          error: '',
+          error: 'No issues registered',
         };
       }
       return allIssues;

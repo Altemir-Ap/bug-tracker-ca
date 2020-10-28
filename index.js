@@ -5,9 +5,40 @@ const hostname = '0.0.0.0';
 const app = (module.exports = express());
 
 const users = require('./controllers/users')();
+const usersModel = require('./models/users')();
 const projects = require('./controllers/projects')();
 const issues = require('./controllers/issues')();
 const comments = require('./controllers/comments')();
+
+app.use(async (req, res, next) => {
+  const FailedAuthMessage = {
+    error: 'Failed Authentication',
+    message: 'Not authorized',
+    code: 'xxx',
+  };
+
+  const suppliedKey = req.headers['x-api-key'];
+  const clientIp =
+    req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  if (!suppliedKey) {
+    console.log('Failed authentication, no key suplied');
+    new Date(), clientIp;
+    FailedAuthMessage.code = '01';
+    FailedAuthMessage.message = 'No key supplied';
+    return res.status(401).json(FailedAuthMessage);
+  }
+
+  const user = await usersModel.getByKey(suppliedKey);
+
+  if (!user) {
+    FailedAuthMessage.code = '02';
+    FailedAuthMessage.message = 'Bad key Supplied';
+    return res.status(401).json(FailedAuthMessage);
+  }
+
+  next();
+});
 
 app.use(bodyParser.json());
 
@@ -38,4 +69,11 @@ app.get('/', (req, res) => {
 
 app.listen(port, hostname, () => {
   console.log(`App listening at http://${hostname}:${port}`);
+});
+
+app.use((req, res) => {
+  res.status(404).json({
+    error: 404,
+    message: 'Route not found',
+  });
 });
