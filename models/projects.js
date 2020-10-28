@@ -8,6 +8,12 @@ module.exports = () => {
       return allSlug;
     }
     const singleSlug = await db.get(COLLECTION, { slug });
+    if(singleSlug.length === 0){
+    return {
+      error: "Slug not found"
+    }
+    
+    }
     return singleSlug;
   };
 

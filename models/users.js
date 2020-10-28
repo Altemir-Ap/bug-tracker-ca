@@ -8,6 +8,11 @@ module.exports = () => {
       return allUsers;
     }
     const singleUser = await db.get(COLLECTION, { email });
+    if (singleUser.length == 0) {
+      return {
+        error: 'User not found',
+      };
+    }
     return singleUser;
   };
 

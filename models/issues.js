@@ -7,18 +7,33 @@ module.exports = () => {
   const get = async (issueNumber = null) => {
     if (!issueNumber) {
       const allIssues = await db.get(COLLECTION);
+      if (allIssues.length == 0) {
+        return {
+          error: '',
+        };
+      }
       return allIssues;
     }
-      const singleIssue = await db.get(COLLECTION, { issueNumber });
-      return singleIssue;
+    const singleIssue = await db.get(COLLECTION, { issueNumber });
+    if (singleIssue.length == 0) {
+      return {
+        error: 'Issue not found',
+      };
+    }
+    return singleIssue;
   };
 
-  const getByProject = async (issueNumber)=>{
+  const getByProject = async (issueNumber) => {
     let regex = new RegExp(issueNumber);
-    const issueByProject = await db.get(COLLECTION, {issueNumber: regex});
+    const issueByProject = await db.get(COLLECTION, { issueNumber: regex });
+    if (issueByProject.length == 0) {
+      return {
+        error: 'Issue not found',
+      };
+    }
     return issueByProject;
-  }
-  
+  };
+
   const add = async (slugName, title, description, status, project_id) => {
     const issuesCounter = await db.count(COLLECTION);
     const results = await db.add(COLLECTION, {
@@ -35,6 +50,6 @@ module.exports = () => {
   return {
     get,
     add,
-    getByProject
+    getByProject,
   };
 };
