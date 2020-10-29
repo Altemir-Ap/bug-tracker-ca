@@ -50,17 +50,16 @@ app.get('/issues', issues.getController); //get all issues
 app.get('/issues/:issueNumber', issues.getByIssueNumber); // get individual issue
 app.get('/projects/:project_id/issues', issues.getByProjectId); // get all issues for a project
 app.post('/projects/:slugName/issues', issues.postController); // add an issue for a project
-app.put(
-  '/projects/:slugName/issues/:issueNumber/:status',
-  comments.updateStatus,
-); // update an issue status
+app.put('/projects/:slugName/issues/:issueNumber/:status', issues.updateStatus); // update an issue status
 
 app.get('/projects', projects.getController); //get all projects
 app.get('/projects/:slug', projects.getBySlug); // get a single project
 app.post('/projects', projects.postController); // Add a new project
 
-app.get('/issues/:issueNumber/comments', comments.getAll); //get All comments for an issue
-app.get('/issues/comments/:commentId', comments.getComment); //get a single Comment By Id
+app.get('/comments/:email', comments.getByAuthor); //get comments by author
+app.get('/comments', comments.getAllComments); //get All comments
+app.get('/issues/:issueNumber/comments', comments.getAllCommentsIssue); //get All comments for an issue
+app.get('/issues/:issueNumber/comments/:commentId', comments.getComment); //get a single Comment By Id
 app.post('/issues/:issueNumber/comments', comments.addComment); //Add a single comment for an issue
 
 app.get('/', (req, res) => {

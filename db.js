@@ -41,28 +41,28 @@ module.exports = () => {
       });
     });
   };
-  const aggregate = (collectionName, pipeline=[]) => {
+  const aggregate = (collectionName, pipeline = []) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(uri, MONGO_OPTIONS, (err, client) => {
         const db = client.db(DB_NAME);
         const collection = db.collection(collectionName);
         collection.aggregate(pipeline).toArray((err, docs) => {
-          if(err){
-            console.log(err)
+          if (err) {
+            console.log(err);
           }
           resolve(docs);
           client.close();
-        }) 
+        });
       });
     });
   };
-  const update = (collectionName, pipeline=[], bodyPipeline = []) => {
+  const update = (collectionName, pipeline = []) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(uri, MONGO_OPTIONS, (err, client) => {
         const db = client.db(DB_NAME);
         const collection = db.collection(collectionName);
-        console.log(pipeline)
-        collection.updateOne(pipeline, bodyPipeline, (err, result) => {
+
+        collection.updateOne(pipeline[0], pipeline[1], (err, result) => {
           resolve(result);
           client.close();
         });
@@ -74,6 +74,6 @@ module.exports = () => {
     add,
     count,
     aggregate,
-    update
+    update,
   };
 };

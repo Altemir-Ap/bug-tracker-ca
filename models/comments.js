@@ -3,6 +3,7 @@ const ObjectID = require('mongodb').ObjectID;
 const COLLECTION = 'issues';
 
 module.exports = () => {
+  //Get all comments for an issue
   const getAllCommentsIssue = async (issueNumber) => {
     const PIPELINE = [
       { $match: { issueNumber: issueNumber } },
@@ -15,9 +16,14 @@ module.exports = () => {
       },
     ];
     const getCommentsIssue = await db.aggregate(COLLECTION, PIPELINE);
+    if (getCommentsIssue.length == 0) {
+      return {
+        message: 'This issue has no comments',
+      };
+    }
     return getCommentsIssue;
   };
-
+  //Get a single comment by ID
   const getAComment = async (commentId) => {
     try {
       var PIPELINE = [
@@ -37,7 +43,6 @@ module.exports = () => {
         },
       ];
     } catch (e) {
-      console.log(e);
       return {
         error: 'Id is not valid',
       };
@@ -51,6 +56,7 @@ module.exports = () => {
     return comment;
   };
 
+  //Add a single comment
   const add = async (issueNumber, text, author) => {
     const PIPELINE = { issueNumber: issueNumber };
     const CONDITION = {
@@ -63,21 +69,61 @@ module.exports = () => {
       },
     };
     const results = await db.update(COLLECTION, PIPELINE, CONDITION);
-
     return results.result;
   };
 
-  const status = async (issueNumber, status) => {
-    const PIPELINE = { issueNumber: issueNumber };
-    const CONDITION = { $set: { status: status } };
-    const results = await db.update(COLLECTION, PIPELINE, CONDITION);
-    return results.result;
+  //Get all comments of all Issues
+  const getAll = async () => {
+    const PIPELINE = [
+      {
+        $project: {
+          _id: 0,
+          issueNumber: 1,
+          comments: 1,
+        },
+      },
+    ];
+    const allComments = await db.aggregate(COLLECTION, PIPELINE);
+    if (allComments.length == 0) {
+      return {
+        message: 'No comments found',
+      };
+    }
+    return allComments;
+  };
+
+  //Get all comments for an author
+  const getByAuthor = async (email) => {
+    const PIPELINE = [
+      { $match: { 'comments.author': email } },
+      {
+        $project: {
+          comments: {
+            $filter: {
+              input: '$comments',
+              as: 'comment',
+              cond: { $eq: ['$$comment.author', email] },
+            },
+          },
+          _id: 1,
+          issueNumber: 1,
+        },
+      },
+    ];
+    const getByAuthor = await db.aggregate(COLLECTION, PIPELINE);
+    if (getByAuthor.length == 0) {
+      return {
+        message: `No comment found for this author: ${email}`,
+      };
+    }
+    return getByAuthor;
   };
 
   return {
     getAllCommentsIssue,
     add,
     getAComment,
-    status,
+    getAll,
+    getByAuthor,
   };
 };
