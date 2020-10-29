@@ -7,20 +7,14 @@ module.exports = () => {
   const getByIssueNumber = async (req, res) => {
     res.json(await issues.get(req.params.issueNumber));
   };
-  const getByProjectId = async (req, res) => {
-    res.json(await issues.getByProject(req.params.project_id));
+  const getByProjectSlug = async (req, res) => {
+    res.json(await issues.getByProject(req.params.projectSlug));
   };
   const postController = async (req, res) => {
     let slugName = req.params.slugName;
-    let { title, description, status, project_id } = req.body;
+    let { title, description, status } = req.body;
 
-    let result = await issues.add(
-      slugName,
-      title,
-      description,
-      status,
-      project_id,
-    );
+    let result = await issues.add(slugName, title, description, status);
     res.json(result);
   };
 
@@ -35,7 +29,7 @@ module.exports = () => {
     getByIssueNumber,
     getController,
     postController,
-    getByProjectId,
+    getByProjectSlug,
     updateStatus,
   };
 };
