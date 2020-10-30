@@ -6,7 +6,7 @@ module.exports = () => {
   //Get all comments for an issue
   const getAllCommentsIssue = async (issueNumber) => {
     const PIPELINE = [
-      { $match: { issueNumber: issueNumber } },
+      { $match: { issueNumber: RegExp(`^${issueNumber}$`, 'i') } },
       {
         $project: {
           comments: 1,
@@ -55,10 +55,9 @@ module.exports = () => {
     }
     return comment;
   };
-
   //Add a single comment
   const add = async (issueNumber, text, author) => {
-    const PIPELINE = { issueNumber: issueNumber };
+    const PIPELINE = { issueNumber: RegExp(`^${issueNumber}`, 'i') };
     const CONDITION = {
       $push: {
         comments: {
@@ -95,14 +94,14 @@ module.exports = () => {
   //Get all comments for an author
   const getByAuthor = async (email) => {
     const PIPELINE = [
-      { $match: { 'comments.author': email } },
+      { $match: { 'comments.author': RegExp(`^${email}$`, 'i') } },
       {
         $project: {
           comments: {
             $filter: {
               input: '$comments',
               as: 'comment',
-              cond: { $eq: ['$$comment.author', email] },
+              cond: { $eq: ['$$comment.author', RegExp(`^${email}$`, 'i')] },
             },
           },
           _id: 1,

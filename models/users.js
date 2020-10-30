@@ -13,7 +13,10 @@ module.exports = () => {
       }
       return allUsers;
     }
-    const singleUser = await db.get(COLLECTION, { email });
+
+    const singleUser = await db.get(COLLECTION, {
+      email: RegExp(`^${email}$`, 'i'),
+    });
     if (singleUser.length == 0) {
       return {
         error: 'User not found',

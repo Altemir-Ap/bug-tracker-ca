@@ -5,24 +5,35 @@ const COLLECTION = 'issues';
 
 module.exports = () => {
   const acceptableStatus = ['wip', 'blocked', 'open', 'closed'];
+  const checkStatus = (status, message) => {
+    if (!acceptableStatus.includes(status)) {
+      throw message;
+    }
+  };
+
   const get = async (issueNumber = null) => {
     if (!issueNumber) {
       const allIssues = await db.get(COLLECTION);
-      if (allIssues.length == 0) {
+      if (!allIssues[0]) {
         return {
           error: 'No issues registered',
         };
       }
       return allIssues;
     }
-    const singleIssue = await db.get(COLLECTION, { issueNumber });
-    if (singleIssue.length == 0) {
+
+    const singleIssue = await db.get(COLLECTION, {
+      issueNumber: RegExp(`^${issueNumber}$`, 'i'),
+    });
+
+    if (!singleIssue[0]) {
       return {
         error: 'Issue not found',
       };
     }
     return singleIssue;
   };
+
   const getByProject = async (slug) => {
     PIPELINE = [
       {
@@ -33,13 +44,14 @@ module.exports = () => {
           as: 'issues',
         },
       },
-      { $match: { slug } },
+      { $match: { slug: RegExp(`^${slug}$`, 'i') } },
       {
         $project: {
           'issues.project_id': 0,
         },
       },
     ];
+
     const issueByProject = await db.aggregate('projects', PIPELINE);
 
     if (!issueByProject[0]) {
@@ -47,26 +59,32 @@ module.exports = () => {
         message: `The ${slug} slug, does not exist`,
       };
     }
-    if (issueByProject[0].issues.length == 0) {
+    if (!issueByProject[0].issues.length) {
       return {
         message: `There is no issues for ${slug} slug `,
       };
     }
+
     return issueByProject;
   };
 
-  const add = async (slug, title, description, status) => {
-    if (!acceptableStatus.includes(status)) {
+  const add = async (slugName, title, description, status) => {
+    try {
+      checkStatus(
+        status,
+        'You must include a valid status: wip, open, closed, blocked',
+      );
+    } catch (err) {
       return {
-        message: 'You must include a valid status: wip, blocked, ',
+        message: err,
       };
     }
 
-    const project = await db.get('projects', { slug });
-    const { project_id, slugName } = project[0];
+    const project = await db.get('projects', { slug: slugName });
+    const { project_id, slug } = project[0];
     const issuesCounter = await db.count(COLLECTION);
     const results = await db.add(COLLECTION, {
-      issueNumber: `${slugName}-${issuesCounter + 1}`,
+      issueNumber: `${slug}-${issuesCounter + 1}`,
       title: title,
       description: description,
       status: status,
@@ -77,9 +95,14 @@ module.exports = () => {
   };
 
   const status = async (issueNumber, status) => {
-    if (!acceptableStatus.includes(status)) {
+    try {
+      checkStatus(
+        status,
+        'You must include a valid status: wip, open, closed, blocked',
+      );
+    } catch (err) {
       return {
-        message: 'You must include a valid status',
+        message: err,
       };
     }
     const PIPELINE = [
