@@ -51,14 +51,20 @@ module.exports = () => {
       };
     }
 
-    const user = await db.get(COLLECTION, { email });
-    const verify = bcrypt.compareSync(supliedKey, user[0].key);
-    if (!verify) {
+    try {
+      const user = await db.get(COLLECTION, { email });
+      const verify = bcrypt.compareSync(supliedKey, user[0].key);
+      if (!verify) {
+        return {
+          error: 'Wrong password',
+        };
+      }
+      return user[0];
+    } catch (e) {
       return {
-        error: 'Wrong password',
+        error: e.message,
       };
     }
-    return user[0];
   };
   return {
     get,

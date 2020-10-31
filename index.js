@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const db = require('./db')();
 const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';
 const app = (module.exports = express());
@@ -31,10 +32,12 @@ app.use(async (req, res, next) => {
   }
 
   const user = await usersModel.getByKey(email, suppliedKey);
-
-  if (!user) {
-    FailedAuthMessage.code = '02';
-    FailedAuthMessage.message = 'Bad key Supplied';
+  console.log(user);
+  if (
+    user.error == "Cannot read property 'key' of undefined" ||
+    user.error == 'Wrong password'
+  ) {
+    FailedAuthMessage.code = '2';
     return res.status(401).json(FailedAuthMessage);
   }
 
@@ -43,20 +46,24 @@ app.use(async (req, res, next) => {
 
 app.use(bodyParser.json());
 
+//users routes
 app.get('/users', users.getController); // get all users
 app.get('/users/:email', users.getByEmail); //get individual user
 app.post('/users', users.postController); // add user
 
+//Issues Routes
 app.get('/issues', issues.getController); //get all issues
 app.get('/issues/:issueNumber', issues.getByIssueNumber); // get individual issue
 app.get('/projects/:projectSlug/issues', issues.getByProjectSlug); // get all issues for a project
 app.post('/projects/:slugName/issues', issues.postController); // add an issue for a project
 app.put('/projects/issues/:issueNumber/:status', issues.updateStatus); // update an issue status
 
+//Projects routes
 app.get('/projects', projects.getController); //get all projects
 app.get('/projects/:slug', projects.getBySlug); // get a single project
 app.post('/projects', projects.postController); // Add a new project
 
+//Comments route
 app.get('/comments/:email', comments.getByAuthor); //get comments by author
 app.get('/comments', comments.getAllComments); //get All comments
 app.get('/issues/:issueNumber/comments', comments.getAllCommentsIssue); //get All comments for an issue

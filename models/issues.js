@@ -90,17 +90,17 @@ module.exports = () => {
 
     if (project.length == 0) {
       return {
-        message: 'Project not found',
+        message: `Slug ${SlugName} not found`,
       };
     }
-    const { project_id, slug } = project[0];
+    const { _id, slug } = project[0];
     const issuesCounter = await db.count(COLLECTION);
     const results = await db.add(COLLECTION, {
       issueNumber: `${slug}-${issuesCounter + 1}`,
       title: title,
       description: description,
       status: status,
-      project_id: new ObjectID(project_id),
+      project_id: new ObjectID(_id),
       comments: [],
     });
     return results.result;
