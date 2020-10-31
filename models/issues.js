@@ -69,6 +69,12 @@ module.exports = () => {
   };
 
   const add = async (slugName, title, description, status) => {
+    if (!slugName || !title || !description || !status) {
+      return {
+        message:
+          'you need to provide a slugName, title, description and status',
+      };
+    }
     try {
       checkStatus(
         status,
@@ -81,6 +87,12 @@ module.exports = () => {
     }
 
     const project = await db.get('projects', { slug: slugName });
+
+    if (project.length == 0) {
+      return {
+        message: 'Project not found',
+      };
+    }
     const { project_id, slug } = project[0];
     const issuesCounter = await db.count(COLLECTION);
     const results = await db.add(COLLECTION, {

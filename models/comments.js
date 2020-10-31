@@ -57,7 +57,12 @@ module.exports = () => {
   };
   //Add a single comment
   const add = async (issueNumber, text, author) => {
-    const PIPELINE = { issueNumber: RegExp(`^${issueNumber}`, 'i') };
+    if (!issueNumber || !text || !author) {
+      return {
+        message: 'you need to provide an issueNumber, text and author',
+      };
+    }
+    const PIPELINE = { issueNumber: RegExp(`^${issueNumber}$`, 'i') };
     const CONDITION = {
       $push: {
         comments: {

@@ -27,6 +27,11 @@ module.exports = () => {
   };
 
   const add = async (slug, name, description) => {
+    if (!name || !slug || !description) {
+      return {
+        message: 'you need to provide a name, slug and description',
+      };
+    }
     const results = await db.add(COLLECTION, {
       slug,
       name,
