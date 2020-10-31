@@ -1,5 +1,7 @@
 const db = require('../db')();
 const COLLECTION = 'users';
+const bcrypt = require('bcrypt');
+const salt = bcrypt.genSaltSync(10);
 
 module.exports = () => {
   //Get all or a single user
@@ -26,32 +28,38 @@ module.exports = () => {
     return singleUser;
   };
   //Add a user
-  const add = async (name, email, usertype, key) => {
+  const add = async (name, email, usertype, userKey) => {
+    if (!name || !email || !usertype || !userKey) {
+      return {
+        message: 'you need to provide a name, email, usertype and userKey',
+      };
+    }
+    const key = bcrypt.hashSync(userKey, salt);
     const results = await db.add(COLLECTION, {
       name,
       email,
       usertype,
       key,
     });
-
     return results.result;
   };
 
-  const getByKey = async (key) => {
-    if (!key) {
-      console.log(`01: missing key`);
-      return null;
+  const getByKey = async (email, supliedKey) => {
+    if (!supliedKey || !email) {
+      return {
+        error: 'Missing key or email',
+      };
     }
 
-    const users = await db.get(COLLECTION, { key });
-    if (users.length !== 1) {
-      console.log('02: Bad key');
-      return null;
+    const user = await db.get(COLLECTION, { email });
+    const verify = bcrypt.compareSync(supliedKey, user[0].key);
+    if (!verify) {
+      return {
+        error: 'Wrong password',
+      };
     }
-
-    return users[0];
+    return user[0];
   };
-
   return {
     get,
     add,

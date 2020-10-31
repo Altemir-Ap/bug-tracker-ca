@@ -18,18 +18,19 @@ app.use(async (req, res, next) => {
   };
 
   const suppliedKey = req.headers['x-api-key'];
+  const email = req.headers['x-api-email'];
   const clientIp =
     req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-  if (!suppliedKey) {
+  if (!suppliedKey || !email) {
     console.log('Failed authentication, no key suplied');
     new Date(), clientIp;
     FailedAuthMessage.code = '01';
-    FailedAuthMessage.message = 'No key supplied';
+    FailedAuthMessage.message = 'No key supplied or email';
     return res.status(401).json(FailedAuthMessage);
   }
 
-  const user = await usersModel.getByKey(suppliedKey);
+  const user = await usersModel.getByKey(email, suppliedKey);
 
   if (!user) {
     FailedAuthMessage.code = '02';
