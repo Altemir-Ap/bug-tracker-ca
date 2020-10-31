@@ -52,7 +52,9 @@ module.exports = () => {
     }
 
     try {
-      const user = await db.get(COLLECTION, { email });
+      const user = await db.get(COLLECTION, {
+        email: RegExp(`^${email}$`, 'i'),
+      });
       const verify = bcrypt.compareSync(supliedKey, user[0].key);
       if (!verify) {
         return {

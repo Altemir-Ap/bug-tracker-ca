@@ -32,12 +32,10 @@ app.use(async (req, res, next) => {
   }
 
   const user = await usersModel.getByKey(email, suppliedKey);
-  console.log(user);
-  if (
-    user.error == "Cannot read property 'key' of undefined" ||
-    user.error == 'Wrong password'
-  ) {
+
+  if (user.error) {
     FailedAuthMessage.code = '2';
+    FailedAuthMessage.message = 'Email or password wrong';
     return res.status(401).json(FailedAuthMessage);
   }
 
