@@ -16,52 +16,31 @@ module.exports = () => {
       },
     ];
     const getCommentsIssue = await db.aggregate(COLLECTION, PIPELINE);
-    if (getCommentsIssue.length == 0) {
-      return {
-        message: 'This issue has no comments',
-      };
-    }
     return getCommentsIssue;
   };
   //Get a single comment by ID
   const getAComment = async (commentId) => {
-    try {
-      var PIPELINE = [
-        { $match: { 'comments._id': ObjectID(commentId) } },
-        {
-          $project: {
-            comments: {
-              $filter: {
-                input: '$comments',
-                as: 'comment',
-                cond: { $eq: ['$$comment._id', ObjectID(commentId)] },
-              },
+    var PIPELINE = [
+      { $match: { 'comments._id': ObjectID(commentId) } },
+      {
+        $project: {
+          comments: {
+            $filter: {
+              input: '$comments',
+              as: 'comment',
+              cond: { $eq: ['$$comment._id', ObjectID(commentId)] },
             },
-            _id: 0,
-            issueNumber: 1,
           },
+          _id: 0,
+          issueNumber: 1,
         },
-      ];
-    } catch (e) {
-      return {
-        error: 'Id is not valid',
-      };
-    }
+      },
+    ];
     const comment = await db.aggregate(COLLECTION, PIPELINE);
-    if (comment.length == 0) {
-      return {
-        error: 'Comment not found',
-      };
-    }
     return comment;
   };
   //Add a single comment
   const add = async (issueNumber, text, author) => {
-    if (!issueNumber || !text || !author) {
-      return {
-        message: 'you need to provide an issueNumber, text and author',
-      };
-    }
     const PIPELINE = { issueNumber: RegExp(`^${issueNumber}$`, 'i') };
     const CONDITION = {
       $push: {
@@ -88,11 +67,7 @@ module.exports = () => {
       },
     ];
     const allComments = await db.aggregate(COLLECTION, PIPELINE);
-    if (allComments.length == 0) {
-      return {
-        message: 'No comments found',
-      };
-    }
+
     return allComments;
   };
 
@@ -115,11 +90,6 @@ module.exports = () => {
       },
     ];
     const getByAuthor = await db.aggregate(COLLECTION, PIPELINE);
-    if (getByAuthor.length == 0) {
-      return {
-        message: `No comment found for this author: ${email}`,
-      };
-    }
     return getByAuthor;
   };
 

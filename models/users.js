@@ -8,32 +8,17 @@ module.exports = () => {
   const get = async (email = null) => {
     if (!email) {
       const allUsers = await db.get(COLLECTION);
-      if (allUsers.length == 0) {
-        return {
-          error: 'There is no users registered',
-        };
-      }
       return allUsers;
     }
 
     const singleUser = await db.get(COLLECTION, {
-      email: RegExp(`^${email}$`, 'i'),
+      email: email,
     });
-    if (singleUser.length == 0) {
-      return {
-        error: 'User not found',
-      };
-    }
 
     return singleUser;
   };
-  //Add a user
+
   const add = async (name, email, usertype, userKey) => {
-    if (!name || !email || !usertype || !userKey) {
-      return {
-        message: 'you need to provide a name, email, usertype and userKey',
-      };
-    }
     const key = bcrypt.hashSync(userKey, salt);
     const results = await db.add(COLLECTION, {
       name,
@@ -53,7 +38,7 @@ module.exports = () => {
 
     try {
       const user = await db.get(COLLECTION, {
-        email: RegExp(`^${email}$`, 'i'),
+        email: email,
       });
       const verify = bcrypt.compareSync(supliedKey, user[0].key);
       if (!verify) {

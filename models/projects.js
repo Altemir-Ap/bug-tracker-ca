@@ -3,35 +3,14 @@ const COLLECTION = 'projects';
 
 module.exports = () => {
   const get = async (slug = null) => {
-    if (!slug) {
-      const allSlug = await db.get(COLLECTION);
-      if (allSlug.length == 0) {
-        return {
-          message: 'There is no Slug registered',
-        };
-      }
-      return allSlug;
-    }
-
     const singleSlug = await db.get(COLLECTION, {
-      slug: RegExp(`^${slug}$`, 'i'),
+      slug: slug,
     });
-
-    if (singleSlug.length === 0) {
-      return {
-        error: 'Slug not found',
-      };
-    }
 
     return singleSlug;
   };
 
   const add = async (slug, name, description) => {
-    if (!name || !slug || !description) {
-      return {
-        message: 'you need to provide a name, slug and description',
-      };
-    }
     const results = await db.add(COLLECTION, {
       slug,
       name,
