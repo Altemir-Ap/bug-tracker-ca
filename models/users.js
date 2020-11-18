@@ -4,29 +4,40 @@ const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
 
 module.exports = () => {
-  //Get all or a single user
   const get = async (email = null) => {
-    if (!email) {
-      const allUsers = await db.get(COLLECTION);
-      return allUsers;
+    try {
+      if (!email) {
+        const user = await db.get(COLLECTION);
+        return { user };
+      }
+      const user = await db.get(COLLECTION, {
+        email,
+      });
+      return { user };
+    } catch (err) {
+      console.log(err);
+      return {
+        error: err,
+      };
     }
-
-    const singleUser = await db.get(COLLECTION, {
-      email: email,
-    });
-
-    return singleUser;
   };
 
   const add = async (name, email, usertype, userKey) => {
-    const key = bcrypt.hashSync(userKey, salt);
-    const results = await db.add(COLLECTION, {
-      name,
-      email,
-      usertype,
-      key,
-    });
-    return results.result;
+    try {
+      const key = bcrypt.hashSync(userKey, salt);
+      const results = await db.add(COLLECTION, {
+        name,
+        email,
+        usertype,
+        key,
+      });
+      return { results };
+    } catch (err) {
+      console.log(err);
+      return {
+        error: err,
+      };
+    }
   };
 
   const getByKey = async (email, supliedKey) => {

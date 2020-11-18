@@ -5,15 +5,21 @@ const COLLECTION = 'issues';
 
 module.exports = () => {
   const get = async (issueNumber = null) => {
-    if (!issueNumber) {
-      const allIssues = await db.get(COLLECTION);
-      return allIssues;
-    }
+    try {
+      if (!issueNumber) {
+        const issues = await db.get(COLLECTION);
+        return { issues };
+      }
 
-    const singleIssue = await db.get(COLLECTION, {
-      issueNumber: issueNumber,
-    });
-    return singleIssue;
+      const issues = await db.get(COLLECTION, {
+        issueNumber: issueNumber,
+      });
+      return { issues };
+    } catch (err) {
+      return {
+        error: err,
+      };
+    }
   };
 
   const getByProject = async (slug) => {
@@ -34,25 +40,36 @@ module.exports = () => {
       },
     ];
 
-    const issueByProject = await db.aggregate('projects', PIPELINE);
-
-    return issueByProject;
+    try {
+      const issueByProject = await db.aggregate('projects', PIPELINE);
+      return { issueByProject };
+    } catch (err) {
+      return {
+        error: err,
+      };
+    }
   };
 
   const add = async (slugName, title, description, status) => {
-    const project = await db.get('projects', { slug: slugName });
+    try {
+      const project = await db.get('projects', { slug: slugName });
 
-    const { _id, slug } = project[0];
-    const issuesCounter = await db.count(COLLECTION);
-    const results = await db.add(COLLECTION, {
-      issueNumber: `${slug}-${issuesCounter + 1}`,
-      title: title,
-      description: description,
-      status: status,
-      project_id: new ObjectID(_id),
-      comments: [],
-    });
-    return results.result;
+      const { _id, slug } = project[0];
+      const issuesCounter = await db.count(COLLECTION);
+      const results = await db.add(COLLECTION, {
+        issueNumber: `${slug}-${issuesCounter + 1}`,
+        title: title,
+        description: description,
+        status: status,
+        project_id: new ObjectID(_id),
+        comments: [],
+      });
+      return results.result;
+    } catch (err) {
+      return {
+        error: err,
+      };
+    }
   };
 
   const status = async (issueNumber, status) => {
@@ -60,8 +77,14 @@ module.exports = () => {
       { issueNumber: issueNumber },
       { $set: { status: status } },
     ];
-    const results = await db.update(COLLECTION, PIPELINE);
-    return results.result;
+    try {
+      const results = await db.update(COLLECTION, PIPELINE);
+      return results.result;
+    } catch (err) {
+      return {
+        error: err,
+      };
+    }
   };
 
   return {
