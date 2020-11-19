@@ -17,6 +17,11 @@ module.exports = () => {
     res.json(user);
   };
   const getByEmail = async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept',
+    );
     const { user, error } = await users.get(req.params.email);
     if (error) {
       res.status(500).json({
