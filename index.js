@@ -1,18 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const db = require('./db')();
-const port = process.env.PORT || 3000;
+var cors = require('cors');
+
+const port = process.env.PORT || 3001;
 const hostname = '0.0.0.0';
 const app = (module.exports = express());
-const cors = require('cors');
 
 const users = require('./controllers/users')();
 const usersModel = require('./models/users')();
 const projects = require('./controllers/projects')();
 const issues = require('./controllers/issues')();
 const comments = require('./controllers/comments')();
+app.use(cors());
 
-app.use(cors);
 app.use(async (req, res, next) => {
   const FailedAuthMessage = {
     error: 'Failed Authentication',

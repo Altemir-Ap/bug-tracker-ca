@@ -24,14 +24,18 @@ module.exports = () => {
   };
 
   const addComment = async (req, res) => {
-    const { issueNumber, text, author } = req.body;
-    const { result, error } = await comments.add(issueNumber, text, author);
+    const { issueNumber } = req.params;
+    const { text, author } = req.body;
+    const { results, error } = await comments.add(issueNumber, text, author);
     if (error) {
       res.status(500).json({
         error,
       });
     }
-    res.json(result);
+    if (results)
+      res.json({
+        message: 'Comment successfully added',
+      });
   };
 
   const getAllComments = async (req, res) => {
