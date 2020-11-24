@@ -23,7 +23,22 @@ module.exports = () => {
   };
 
   const add = async (name, email, usertype, userKey) => {
+    if (!name || !email || !usertype || !userKey) {
+      return {
+        error: 'Please provide all the fields',
+      };
+    }
+
     try {
+      const user = await db.get(COLLECTION, {
+        email,
+      });
+      if (user.length > 0) {
+        return {
+          results: 'User already registered',
+        };
+      }
+
       const key = bcrypt.hashSync(userKey, salt);
       const results = await db.add(COLLECTION, {
         name,

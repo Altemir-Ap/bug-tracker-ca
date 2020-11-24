@@ -7,14 +7,14 @@ module.exports = () => {
   const get = async (issueNumber = null) => {
     try {
       if (!issueNumber) {
-        const issues = await db.get(COLLECTION);
-        return { issues };
+        const issue = await db.get(COLLECTION);
+        return { issue };
       }
 
-      const issues = await db.get(COLLECTION, {
+      const issue = await db.get(COLLECTION, {
         issueNumber: issueNumber,
       });
-      return { issues };
+      return { issue };
     } catch (err) {
       return {
         error: err,
@@ -51,6 +51,12 @@ module.exports = () => {
   };
 
   const add = async (slugName, title, description, status) => {
+    if (!slugName || !title || !description || !status) {
+      return {
+        error: 'Please provide all the fields',
+      };
+    }
+
     try {
       const project = await db.get('projects', { slug: slugName });
 
@@ -73,6 +79,11 @@ module.exports = () => {
   };
 
   const status = async (issueNumber, status) => {
+    if (!issueNumber || !status) {
+      return {
+        error: 'Please provide all the fields',
+      };
+    }
     const PIPELINE = [
       { issueNumber: issueNumber },
       { $set: { status: status } },

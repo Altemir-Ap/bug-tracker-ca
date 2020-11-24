@@ -49,19 +49,28 @@ module.exports = () => {
   };
   //Add a single comment
   const add = async (issueNumber, text, author) => {
+    console.log(issueNumber, text, author);
+    if (!issueNumber || !text || !author) {
+      return {
+        error: 'Please provide all the fields',
+      };
+    }
     try {
-      const PIPELINE = { issueNumber: RegExp(`^${issueNumber}$`, 'i') };
-      const CONDITION = {
-        $push: {
-          comments: {
-            _id: new ObjectID(),
-            text: text,
-            author: author,
+      const PIPELINE = [
+        { issueNumber: RegExp(`^${issueNumber}$`, 'i') },
+        {
+          $push: {
+            comments: {
+              _id: new ObjectID(),
+              text: text,
+              author: author,
+            },
           },
         },
-      };
-      const results = await db.update(COLLECTION, PIPELINE, CONDITION);
-      return results.result;
+      ];
+      const results = await db.update(COLLECTION, PIPELINE);
+
+      return { results };
     } catch (err) {
       return { error: err };
     }
