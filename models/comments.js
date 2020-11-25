@@ -100,14 +100,14 @@ module.exports = () => {
   const getByAuthor = async (email) => {
     try {
       const PIPELINE = [
-        { $match: { 'comments.author': RegExp(`^${email}$`, 'i') } },
+        { $match: { 'comments.author': email } },
         {
           $project: {
             comments: {
               $filter: {
                 input: '$comments',
                 as: 'comment',
-                cond: { $eq: ['$$comment.author', RegExp(`^${email}$`, 'i')] },
+                cond: { $eq: ['$$comment.author', email] },
               },
             },
             _id: 1,
