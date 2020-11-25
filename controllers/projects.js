@@ -23,13 +23,13 @@ module.exports = () => {
   const postController = async (req, res) => {
     const { slug, name, description } = req.body;
 
-    const { result, error } = await projects.add(slug, name, description);
+    const { results, error } = await projects.add(slug, name, description);
     if (error) {
       res.status(500).json({
         error,
       });
     }
-    res.json(result);
+    res.json(results);
   };
   return {
     getBySlug,

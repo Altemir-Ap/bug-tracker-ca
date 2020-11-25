@@ -44,7 +44,7 @@ module.exports = () => {
         description,
       });
 
-      return results.result;
+      return { results };
     } catch (err) {
       console.log(err);
       return {
