@@ -3,6 +3,8 @@ const COLLECTION = 'users';
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
 
+const send = require('./emailNotfication')();
+
 module.exports = () => {
   const get = async (email = null) => {
     try {
@@ -46,6 +48,7 @@ module.exports = () => {
         usertype,
         key,
       });
+      send.email(email);
       return { results };
     } catch (err) {
       console.log(err);
