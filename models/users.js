@@ -3,45 +3,59 @@ const COLLECTION = 'users';
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
 
-module.exports = () => {
-  //Get all or a single user
-  const get = async (email = null) => {
-    if (!email) {
-      const allUsers = await db.get(COLLECTION);
-      if (allUsers.length == 0) {
-        return {
-          error: 'There is no users registered',
-        };
-      }
-      return allUsers;
-    }
+const send = require('./emailNotfication')();
 
-    const singleUser = await db.get(COLLECTION, {
-      email: RegExp(`^${email}$`, 'i'),
-    });
-    if (singleUser.length == 0) {
+module.exports = () => {
+  const get = async (email = null) => {
+    try {
+      if (!email) {
+        const user = await db.get(COLLECTION);
+        return { user };
+      }
+      const user = await db.get(COLLECTION, {
+        email,
+      });
+      return { user };
+    } catch (err) {
+      console.log(err);
       return {
-        error: 'User not found',
+        error: err,
       };
     }
-
-    return singleUser;
   };
-  //Add a user
+
   const add = async (name, email, usertype, userKey) => {
     if (!name || !email || !usertype || !userKey) {
       return {
-        message: 'you need to provide a name, email, usertype and userKey',
+        error: 'Please provide all the fields',
       };
     }
-    const key = bcrypt.hashSync(userKey, salt);
-    const results = await db.add(COLLECTION, {
-      name,
-      email,
-      usertype,
-      key,
-    });
-    return results.result;
+
+    try {
+      const user = await db.get(COLLECTION, {
+        email,
+      });
+      if (user.length > 0) {
+        return {
+          results: 'User already registered',
+        };
+      }
+
+      const key = bcrypt.hashSync(userKey, salt);
+      const results = await db.add(COLLECTION, {
+        name,
+        email,
+        usertype,
+        key,
+      });
+      send.email(email);
+      return { results };
+    } catch (err) {
+      console.log(err);
+      return {
+        error: err,
+      };
+    }
   };
 
   const getByKey = async (email, supliedKey) => {
@@ -53,7 +67,7 @@ module.exports = () => {
 
     try {
       const user = await db.get(COLLECTION, {
-        email: RegExp(`^${email}$`, 'i'),
+        email: email,
       });
       const verify = bcrypt.compareSync(supliedKey, user[0].key);
       if (!verify) {

@@ -2,45 +2,56 @@ const db = require('../db')();
 const COLLECTION = 'projects';
 
 module.exports = () => {
-  const get = async (slug = null) => {
-    if (!slug) {
-      const allSlug = await db.get(COLLECTION);
-      if (allSlug.length == 0) {
-        return {
-          message: 'There is no Slug registered',
-        };
+  const get = async (slugName = null) => {
+    try {
+      if (!slugName) {
+        const slug = await db.get(COLLECTION);
+        return { slug };
       }
-      return allSlug;
-    }
-
-    const singleSlug = await db.get(COLLECTION, {
-      slug: RegExp(`^${slug}$`, 'i'),
-    });
-
-    if (singleSlug.length === 0) {
+      const slug = await db.get(COLLECTION, {
+        slug: slugName,
+      });
+      return { slug };
+    } catch (err) {
+      console.log(err);
       return {
-        error: 'Slug not found',
+        error: err,
       };
     }
-
-    return singleSlug;
   };
 
   const add = async (slug, name, description) => {
     if (!name || !slug || !description) {
       return {
-        message: 'you need to provide a name, slug and description',
+        error: 'Please provide all the fields',
       };
     }
-    const results = await db.add(COLLECTION, {
-      slug,
-      name,
-      description,
-    });
 
-    return results.result;
+    try {
+      const slugName = await db.get(COLLECTION, {
+        slug: slug,
+      });
+
+      if (slugName.length > 0) {
+        return {
+          result: 'Project already exists',
+        };
+      }
+
+      const results = await db.add(COLLECTION, {
+        slug,
+        name,
+        description,
+      });
+
+      return { results };
+    } catch (err) {
+      console.log(err);
+      return {
+        error: err,
+      };
+    }
   };
-
   return {
     get,
     add,

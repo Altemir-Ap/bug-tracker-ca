@@ -2,24 +2,63 @@ const comments = require('../models/comments')();
 
 module.exports = () => {
   const getAllCommentsIssue = async (req, res) => {
-    res.json(await comments.getAllCommentsIssue(req.params.issueNumber));
+    const { getCommentsIssue, error } = await comments.getAllCommentsIssue(
+      req.params.issueNumber,
+    );
+    if (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    res.json(getCommentsIssue);
   };
+
   const getComment = async (req, res) => {
-    res.json(await comments.getAComment(req.params.commentId));
+    const { comment, error } = await comments.getAComment(req.params.commentId);
+    if (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    res.json(comment);
   };
+
   const addComment = async (req, res) => {
-    const { issueNumber, text, author } = req.body;
-    const result = await comments.add(issueNumber, text, author);
-    res.json(result);
+    const { issueNumber } = req.params;
+    const { text, author } = req.body;
+    const { results, error } = await comments.add(issueNumber, text, author);
+    if (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    if (results)
+      res.json({
+        message: 'Comment successfully added',
+      });
   };
 
   const getAllComments = async (req, res) => {
-    res.json(await comments.getAll());
+    const { allComments, error } = await comments.getAll();
+    if (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    res.json(allComments);
   };
+
   const getByAuthor = async (req, res) => {
     let email = req.params.email;
-    res.json(await comments.getByAuthor(email));
+    const { getAuthorComments, error } = await comments.getByAuthor(email);
+    if (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    res.json(getAuthorComments);
   };
+
   return {
     getAllCommentsIssue,
     addComment,
