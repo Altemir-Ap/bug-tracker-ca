@@ -49,7 +49,8 @@ module.exports = () => {
   };
 
   const updateStatus = async (req, res) => {
-    let { issueNumber, status } = req.params;
+    let { issueNumber } = req.params;
+    let { status } = req.body;
 
     const { results, error } = await issues.status(issueNumber, status);
     if (error) {

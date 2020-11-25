@@ -57,7 +57,7 @@ app.get('/issues/:issueNumber', issues.getByIssueNumber); // get individual issu
 app.put('/issues/:issueNumber', issues.addDue); // add dueDate
 app.get('/projects/:projectSlug/issues', issues.getByProjectSlug); // get all issues for a project
 app.post('/projects/:slugName/issues', issues.postController); // add an issue for a project
-app.put('/projects/issues/:issueNumber/:status', issues.updateStatus); // update an issue status
+app.put('/projects/issues/:issueNumber/', issues.updateStatus); // update an issue status
 
 //Projects routes
 app.get('/projects', projects.getController); //get all projects
