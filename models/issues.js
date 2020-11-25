@@ -12,7 +12,7 @@ module.exports = () => {
       }
 
       const issue = await db.get(COLLECTION, {
-        issueNumber: issueNumber,
+        issueNumber,
       });
       return { issue };
     } catch (err) {
@@ -70,7 +70,31 @@ module.exports = () => {
         project_id: new ObjectID(_id),
         comments: [],
       });
-      return results.result;
+      return { results };
+    } catch (err) {
+      return {
+        error: err,
+      };
+    }
+  };
+
+  const dueDates = async (issueNumber, dueDate) => {
+    let PIPELINE = [
+      { issueNumber },
+      {
+        $set: {
+          dueDate,
+        },
+      },
+    ];
+    if (!issueNumber || !dueDate) {
+      return {
+        error: 'You must provide all the fields',
+      };
+    }
+    try {
+      const results = await db.update(COLLECTION, PIPELINE);
+      return { results };
     } catch (err) {
       return {
         error: err,
@@ -90,7 +114,7 @@ module.exports = () => {
     ];
     try {
       const results = await db.update(COLLECTION, PIPELINE);
-      return results.result;
+      return { results };
     } catch (err) {
       return {
         error: err,
@@ -103,5 +127,6 @@ module.exports = () => {
     add,
     getByProject,
     status,
+    dueDates,
   };
 };

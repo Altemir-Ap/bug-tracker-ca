@@ -20,19 +20,21 @@ module.exports = () => {
     res.json(issue);
   };
   const getByProjectSlug = async (req, res) => {
-    const { issues, error } = await issues.get(req.params.projectSlug);
+    const { issueByProject, error } = await issues.getByProject(
+      req.params.projectSlug,
+    );
     if (error) {
       res.status(500).json({
         error,
       });
     }
-    res.json(issues);
+    res.json(issueByProject);
   };
   const postController = async (req, res) => {
     let slugName = req.params.slugName;
     let { title, description, status } = req.body;
 
-    let { result, error } = await issues.add(
+    let { results, error } = await issues.add(
       slugName,
       title,
       description,
@@ -43,19 +45,32 @@ module.exports = () => {
         error,
       });
     }
-    res.json(result);
+    res.json(results);
   };
 
   const updateStatus = async (req, res) => {
     let { issueNumber, status } = req.params;
 
-    const { result, error } = await issues.status(issueNumber, status);
+    const { results, error } = await issues.status(issueNumber, status);
     if (error) {
       res.status(500).json({
         error,
       });
     }
-    res.json(result);
+    res.json(results);
+  };
+
+  const addDue = async (req, res) => {
+    let { issueNumber } = req.params;
+    let { dueDate } = req.body;
+
+    const { results, error } = await issues.dueDates(issueNumber, dueDate);
+    if (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    res.json(results);
   };
 
   return {
@@ -64,5 +79,6 @@ module.exports = () => {
     postController,
     getByProjectSlug,
     updateStatus,
+    addDue,
   };
 };

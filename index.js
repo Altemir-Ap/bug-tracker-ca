@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 var cors = require('cors');
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';
 const app = (module.exports = express());
 
@@ -54,6 +54,7 @@ app.post('/users', users.postController); // add user
 //Issues Routes
 app.get('/issues', issues.getController); //get all issues
 app.get('/issues/:issueNumber', issues.getByIssueNumber); // get individual issue
+app.put('/issues/:issueNumber', issues.addDue); // add dueDate
 app.get('/projects/:projectSlug/issues', issues.getByProjectSlug); // get all issues for a project
 app.post('/projects/:slugName/issues', issues.postController); // add an issue for a project
 app.put('/projects/issues/:issueNumber/:status', issues.updateStatus); // update an issue status
