@@ -26,7 +26,6 @@ app.use(async (req, res, next) => {
     req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
   if (!suppliedKey || !email) {
-    console.log('Failed authentication, no key suplied');
     new Date(), clientIp;
     FailedAuthMessage.code = '01';
     FailedAuthMessage.message = 'No key supplied or email';
